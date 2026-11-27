@@ -1,430 +1,526 @@
 <!DOCTYPE html>
-<html>
-	<head>
-		<meta charset="utf-8">
-		<meta http-equiv="X-UA-Compatible" content="IE=edge">
-		<meta name="viewport" content="width=device-width, initial-scale=1">
-		<meta name="description" content="Portfolio Site">
-		<meta name="author" content="Sumit Maurya">
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sumit Maurya Trek Portfolio</title>
+<meta name="description" content="Sumit Maurya, Staff Software Engineer. Platform engineering and software architecture, told as a mountain trek from forest floor to summit.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800&family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  /* Layout: one fixed canvas scene behind a single column of trail-sign cards; altitude rail on the right edge. Single theme by choice. */
+  color-scheme: dark;
+  --ink:#f4efe4;
+  --muted:#b7c3c6;
+  --panel:rgba(12,23,29,.78);
+  --line:rgba(244,239,228,.16);
+  --blaze:#ff8438;
+  --ice:#9fd8ef;
+  --night:#10201c;
+  --font-display:'Big Shoulders Display','Arial Narrow',Impact,sans-serif;
+  --font-body:'DM Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --font-mono:'DM Mono',ui-monospace,Menlo,Consolas,monospace;
+  --vh:1vh;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:var(--night);color:var(--ink);font-family:var(--font-body);font-size:16px;line-height:1.55;overflow:hidden;-webkit-font-smoothing:antialiased}
+#scene{position:absolute;inset:0;width:100%;height:100%;display:block}
+#scroller{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+#scroller::-webkit-scrollbar{display:none}
+#scroller:focus-visible{outline:2px solid var(--blaze);outline-offset:-2px}
 
-		<title>Sumit Maurya</title>
+/* HUD */
+.hud{position:absolute;top:12px;left:16px;z-index:5;display:flex;align-items:center;gap:10px;padding:7px 12px;border-radius:999px;background:var(--panel);border:1px solid var(--line);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);font-family:var(--font-mono);font-size:12px;letter-spacing:.02em;pointer-events:none}
+.hud b{font-family:var(--font-display);font-weight:800;font-size:15px;letter-spacing:.06em;color:var(--blaze)}
+.hud span{font-variant-numeric:tabular-nums;white-space:nowrap}
+.rail{position:absolute;right:12px;top:16%;bottom:16%;width:2px;background:var(--line);z-index:5;pointer-events:none;border-radius:2px}
+.rail i{position:absolute;left:50%;width:8px;height:8px;margin:0 0 -4px -4px;border-radius:50%;background:var(--night);border:2px solid var(--muted)}
+.rail i.done{border-color:var(--blaze);background:var(--blaze)}
+.rail i em{display:none;position:absolute;right:14px;top:-7px;font:500 11px var(--font-mono);color:var(--ink);font-style:normal;text-shadow:0 1px 3px rgba(0,0,0,.7)}
+.rail .me{position:absolute;left:50%;width:0;height:0;margin:0 0 -7px -15px;border:7px solid transparent;border-left:10px solid var(--blaze);filter:drop-shadow(0 1px 2px rgba(0,0,0,.5))}
 
-		<!-- Latest compiled and minified CSS -->
-		<link rel="stylesheet" href="css/bootstrap.min.css" type="text/css"> 
-		
-		
-		
+/* Sections */
+section{display:flex;padding:calc(var(--vh)*42) 28px calc(var(--vh)*42) 16px}
+section.hero{min-height:calc(var(--vh)*100);padding-top:64px;padding-bottom:0;align-items:flex-start}
+section.summit{padding-bottom:calc(var(--vh)*48)}
+.card{width:100%;max-width:520px;margin:0 auto;padding:22px 20px;background:var(--panel);border:1px solid var(--line);border-radius:14px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);box-shadow:0 18px 40px rgba(0,0,0,.28);display:flex;flex-direction:column;gap:14px}
+.hero .card{background:rgba(12,23,29,.6)}
+.eyebrow{font:500 12px var(--font-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--blaze);margin:0;display:flex;flex-wrap:wrap;gap:4px 10px}
+.eyebrow span{color:var(--muted)}
+h1,h2{font-family:var(--font-display);font-weight:800;margin:0;line-height:1;text-wrap:balance;letter-spacing:.01em;text-transform:uppercase}
+h1{font-size:clamp(52px,15vw,92px)}
+h2{font-size:clamp(32px,8vw,44px)}
+.role{margin:0;font-weight:500;font-size:17px;line-height:1.35}
+.sub{margin:0;color:var(--muted);font-size:14.5px}
+p{margin:0;max-width:62ch}
+blockquote{margin:0;padding-left:14px;border-left:3px solid var(--blaze);font-style:italic;color:var(--ink)}
+.hint{font:500 12px var(--font-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0}
+ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:8px}
+li::marker{color:var(--blaze)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:0;padding:0;list-style:none;flex-direction:row}
+.chips li{font:400 11.5px var(--font-mono);padding:3px 8px;border:1px solid var(--line);border-radius:5px;color:var(--muted)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.stats div{border-top:2px solid var(--blaze);padding-top:8px}
+.stats b{display:block;font:800 38px/1 var(--font-display);font-variant-numeric:tabular-nums}
+.stats span{font-size:12.5px;color:var(--muted);line-height:1.3;display:block;margin-top:4px}
+.note{border-top:1px dashed var(--line);padding-top:12px;font-size:14px;color:var(--muted);display:flex;flex-direction:column;gap:6px}
+.note strong{color:var(--ink);font-weight:700}
+a{color:var(--ice);text-underline-offset:3px}
+a:focus-visible{outline:2px solid var(--blaze);outline-offset:3px;border-radius:3px}
+dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:8px 14px;font-size:14px}
+dt{font:500 11.5px var(--font-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--blaze);padding-top:2px}
+dd{margin:0;color:var(--muted)}
+.contact{display:flex;flex-direction:column;gap:10px;list-style:none;padding:0}
+.contact li{display:flex;flex-direction:column;gap:1px;padding:10px 12px;border:1px solid var(--line);border-radius:9px}
+.contact small{font:500 11px var(--font-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.contact a{font-weight:500;overflow-wrap:anywhere}
 
-		<!-- Custom Fonts -->
-		<link href="css/font-awesome.min.css" rel="stylesheet" type="text/css">
-		<link href="https://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" rel="stylesheet" type="text/css">
-		<link href="https://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet" type="text/css">
-		<title>Sumit Maurya</title>
-		
-		<!-- Custom CSS -->
-		<link href="css/basic.css" rel="stylesheet" type="text/css">
-		
-		<!--[if lt IE 9]>
-        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
-        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
-		<![endif]-->
-		
-	</head>
+@media (min-width:900px){
+  section{padding:calc(var(--vh)*30) 9vw calc(var(--vh)*30) 16px}
+  section.hero{padding-top:calc(var(--vh)*14)}
+  .card{margin:0 0 0 auto;padding:28px}
+  .hud{top:18px;left:22px}
+  .rail{right:26px}
+  .rail i em{display:block}
+}
+</style>
+</head>
+<body>
+<canvas id="scene" aria-hidden="true"></canvas>
 
-	<body data-spy="scroll" data-target=".navbar" data-offset="50">
-	
-		<nav  class="navbar navbar-inverse navbar-fixed-top">
-		<div class="container-fluid">
-			<div class="navbar-header">
-				<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavBar">
-				<span class="icon-bar"></span>
-				<span class="icon-bar"></span>
-				<span class="icon-bar"></span>
-				</button>
-				<a class="navbar-brand" href="#home"><img src="img/brandWhite.png" class="img-responsive" alt="Sumit Maurya"></a>
-			</div>
-			<div class="collapse navbar-collapse" id="myNavBar">
-				<ul class ="nav navbar-nav">
-					<li><a href="#about">About Me</a></li>
-					<li><a href="#work">Work Gallery</a></li>
-					<li><a href="#contact">Contact Me</a></li>
-				</ul>
-			</div>
-		</div>
-		</nav>
-		
-		
-		
-	<section id="home" class="home">
-		<div id="homeDiv">
-                <div class="row" id="mainRow" >
-					<div class="col-md-6 text-center" id="leftDiv">		
-					<!--div id="navMenu" class="col-md-6 text-center">
-						<h1>Sumit Maurya</h1>
-						<h1>Software Developer<br>
-						Automation Tester<br>
-						Graphic Designer<br>
-						Photographer	</h1>
-						
-						<p>"Once you start moving, let the god decide when and where to stop"</p>
-					</div-->
-						<img src="img/mainDisplay.png" class="img-responsive" alt="Sumit Maurya">
-						<!--div id="navMenu" class="col-md-6 text-center">
-						<h1>Sumit Maurya</h1-->
-						<h1>Software Developer<br>
-						Automation Tester<br>
-						Graphic Designer<br>
-						Photographer	</h1>
-						<br>
-						<p><h4>"Once you start moving, let the God decide when and where to stop"</h4></p>
-					<!--/div-->
-					</div>
-                    <div class="col-md-6">		
-						<img src="img/mainImg2.png" class="img-responsive" id="mainImg" alt="Sumit Maurya">
-					</div>
-				</div>
-		<div>
-	 </section>
-	 
-	 <!-- About -->
-    <section id="about" class="about">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-12 text-center">
-                    <h2>About</h2>
-                    <p class="lead">
-Software Engineer with 2+ years of experience. People mostly work in either Testing or Development domain. But I offer a package deal; Tester and a developer. I am in ways better than a Full Stack Developer because I can even test the code. I have not confined or hampered my learning. I have received Client Appreciation for Designing and Developing a Web Portal for a new Employee's Induction and Shadowing process. The idea and tool was perceived with critical acclaim and received an award for the same. I am currently working on MEAN stack as I have recently discovered my profound love for NodeJS and Mongo DB</p>
-                </div>
-            </div>
-            <!-- /.row -->
-			<div class="container-fluid">
-			<div class="col-sm-6 col-md-3"><img src="img/hpuftDisplay.jpg" class="img-responsive img-thumbnail" alt="HP - UFT"></div>
-								<div class="col-sm-6 col-md-3"><img src="img/seleniumDisplay.jpg" class="img-responsive img-thumbnail" alt="Selenium"></div>
-								<div class="col-sm-6 col-md-3"><img src="img/unixDisplay.jpg" class="img-responsive img-thumbnail" alt="Unix"></div>
-								<div class="col-sm-6 col-md-3"><img src="img/hpqcDisplay.jpg" class="img-responsive img-thumbnail" alt="HP-QC"></div>
-								<div class="col-sm-6 col-md-3"><img src="img/javaLogo.jpg" class="img-responsive img-thumbnail" alt="JAVA"></div>
-								<div class="col-sm-6 col-md-3"><img src="img/phpLogo.jpg" class="img-responsive img-thumbnail" alt="PHP My SQL"></div>
-								<div class="col-sm-6 col-md-3"><img src="img/webLogo.jpg" class="img-responsive img-thumbnail" alt="Web Development"></div>
-								<div class="col-sm-6 col-md-3"><img src="img/photoshopLogo.jpg" class="img-responsive img-thumbnail" alt="Adobe PhotoShop"></div>
-			</div>
-			
-        </div>
-        <!-- /.container -->
-    </section>
-		
-	 <!-- Work Gallery -->
-    <section id="work" class="work">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-12 text-center">
-                    <h2>Work Gallery</h2>
-					
-					
-				<div class="container">
-				  
-				  <ul class="nav nav-tabs nav-justified">
-					<li class="active"><a data-toggle="tab" href="#menu4">Software Development</a></li>
-					<li><a data-toggle="tab" href="#menu1">Automation Testing</a></li>
-					<li><a data-toggle="tab" href="#menu2">Graphic Designing</a></li>
-					<li><a data-toggle="tab" href="#menu3">Photography</a></li>
-				  </ul>
+<div class="hud" aria-hidden="true"><b>SM</b><span id="hudtxt">1,800 m · Dense forest</span></div>
+<div class="rail" id="rail" aria-hidden="true"><div class="me" id="me"></div></div>
 
-				  <div class="tab-content">
-					<div id="menu4" class="tab-pane fade in active">
-					<!---->
-					</br>
-								
-					<div class="row">
-						  <div class="col-sm-6 col-md-4">
-							<div class="thumbnail">
-							  <img src="img/AIProj.png" class="img-responsive" alt="...">
-							  <div class="caption">
-								<h3>AILaod Message Extractor</h3>
-								<p>AI Laod Message Extractor developed for automating the task of Load messages extraction and data maintainance. 
-								Prior to this software the work was manually executed. Tecnology Used <code>JAVA,SQL,Excel,JDBC, JAVA AWT</code>
-								I got appreciation for the software and it is now used for load message extraction</p>
-								</div>
-							</div>
-						  </div> 
-					
-						  <div class="col-sm-6 col-md-4">
-							<div class="thumbnail">
-							  <img src="img/twikiLogo.png" class="img-responsive" alt="...">
-							  <div class="caption">
-								<h3>Twiki</h3>					
-								
-								<p>Twiki is a web-portal specifically designed to act as a knowledge hub
-								for a Project. Designed using <code>HTML5, CSS3, Bootstrap, PHP5, NodeJS, AJAX, JS, JQuery</code> and more such 
-								technologies. Aimed at bringing the Induction and shadowing process for an Employee at par. A specifically designed
-								exam portal to track everyday progress of trianee. Recieved critical acclaim 
-								from Client(AT&amp;T) and Organization(TechM).</p>
-							</div>
-							</div>
-						  </div> 
-						  
-						  <div class="col-sm-6 col-md-4">
-							<div class="thumbnail">
-							  <img src="img/bridgeLogo.png" class="img-responsive" alt="...">
-							  <div class="caption">
-								<h3>Bridge</h3>					
-								
-								<p>Bridge is an Android Based Application that works on the concept of 
-								Near Field Communication(NFC). It helps Visually Challenged people to identify things that are equipped with an 
-								NFC enabled chip. The Application speaks the data stored inside the chip. It was created in a contest "Tech Hackathon".
-								The idea was well percieved at organizational level.<a href="https://github.com/Shashank143s/Bridge">Github Repository</a></p>
-							</div>
-							</div>
-						  </div> 
-					</div>		
-							
-							
-							
-					<!--end-->
-					</div>
-					<div id="menu1" class="tab-pane fade">
-					<!---->
-						</br>				
-						 <h4>Worked as test Executor and planner for OPUS application.
-							Automating Web Application Testing using Selenium WebDriver with TestNG framework. Executing Selenium Test cases and reporting defects. Experience in Data Driven testing, Cross Browser testing and parallel test execution using Selenium WebDriver, TestNG and Selenium Grid. Writing Test cases using Element locators ,WebDriver methods,JAVA programming feature and TestNG annotations.
-							Automation is based on hybrid framework and have written, maintained and executed test scripts have worked on  UFT-QTP using VB Script.
-							It  involved frontend as well as backend validation of the application.</h4> <br>
-							<div class="col-sm-6 col-md-3"><img src="img/hpuftDisplay.jpg" class="img-responsive img-thumbnail" alt="HP - UFT"></div>
-								<div class="col-sm-6 col-md-3"><img src="img/seleniumDisplay.jpg" class="img-responsive img-thumbnail" alt="Selenium"></div>
-								<div class="col-sm-6 col-md-3"><img src="img/unixDisplay.jpg" class="img-responsive img-thumbnail" alt="Unix"></div>
-								<div class="col-sm-6 col-md-3"><img src="img/hpqcDisplay.jpg" class="img-responsive img-thumbnail" alt="HP-QC"></div>
+<main id="scroller" tabindex="0">
 
-					
-					<!--end-->
-					</div>
-					<div id="menu2" class="tab-pane fade">
-					<!---->
-						</br>				
-						<div class="col-sm-12 col-md-12">
-							<div class="thumbnail">
-							  <img src="img/srbLogo.png" class="img-responsive" alt="...">
-							  <div class="caption">
-								<h3>Super Runner Boy</h3>	<br>				
-								<div class="col-sm-4 col-md-4"><img src="img/srbDisplay1.jpg" class="img-responsive img-thumbnail" alt="Super Runner Boy"></div>
-								<div class="col-sm-4 col-md-4"><img src="img/srbDisplay2.jpg" class="img-responsive img-thumbnail" alt="Super Runner Boy"></div>
-								<div class="col-sm-4 col-md-4"><img src="img/srbDisplay3.jpg" class="img-responsive img-thumbnail" alt="Super Runner Boy"></div>
-								<br><br>
-								<p>A Runner Game Containing Four Themes
-									1.Snow
-									2.Hills
-									3.Desert
-									4.Beach
+<section class="hero" data-alt="0">
+  <div class="card">
+    <p class="eyebrow">Trailhead <span>Bengaluru, India</span></p>
+    <h1>Sumit Maurya</h1>
+    <p class="role">Staff Software Engineer<br>Platform Engineering &amp; Software Architecture</p>
+    <blockquote>Once you start moving, let the God decide when and where to stop.</blockquote>
+    <p class="hint">Scroll to start the climb ↓</p>
+  </div>
+</section>
 
-									Total 17 Levels . 
+<section data-alt="0.07">
+  <div class="card">
+    <p class="eyebrow">Base camp <span>1,800 m</span></p>
+    <h2>12 years on the trail</h2>
+    <p>I design, modernize and scale enterprise platforms across AdTech, digital media, e-commerce, gaming and telecom. Today I work on Samsung Ads' Demand-Side Platform: breaking a monolith into modules, moving Ruby to Go, and making shipping faster for every engineer on the team.</p>
+    <div class="stats">
+      <div><b>10</b><span>microfrontend domains</span></div>
+      <div><b>8</b><span>backend modular packs</span></div>
+      <div><b>80%</b><span>less deployment time</span></div>
+    </div>
+  </div>
+</section>
 
-									Consists of Obstacles : Fire , arrow , birds etc.
-									Get Ready , Jump on Springs , jump on windmills , protect yourself from fire , get to the final destination , on your way collect some coins , fruits and Cups .
+<section data-alt="0.16" data-year="2014">
+  <div class="card">
+    <p class="eyebrow">2014 – 2017 <span>Dense forest · Noida</span></p>
+    <h2>Tech Mahindra</h2>
+    <p class="sub">Software Engineer</p>
+    <ul>
+      <li>Built web interfaces for a telecom service provisioning platform used by a major US telecom provider.</li>
+      <li>Shipped responsive UIs in JavaScript, HTML and CSS, wired into backend workflows and SQL data sources.</li>
+    </ul>
+    <ul class="chips"><li>JavaScript</li><li>HTML5</li><li>CSS3</li><li>SQL</li></ul>
+    <div class="note">
+      <span><strong>Where the trail began:</strong> B.Tech, University School of Information, Communication &amp; Technology, Guru Gobind Singh Indraprastha University, Delhi, 2014.</span>
+      <span><strong>Side trails:</strong> <a href="https://play.google.com/store/apps/details?id=com.pack.SuperRunnerBoyTrial">Super Runner Boy</a>, an Android runner game with 17 levels, and <a href="https://github.com/Shashank143s/Bridge">Bridge</a>, a hackathon app that reads NFC tags aloud for visually impaired people.</span>
+    </div>
+  </div>
+</section>
 
-									Developers :
-									Sahil Manchanda and Sumit Maurya 
+<section data-alt="0.30" data-year="2017">
+  <div class="card">
+    <p class="eyebrow">2017 – 2018 <span>Shrubs and rock · Noida</span></p>
+    <h2>Adobe</h2>
+    <p class="sub">Senior Software Engineer</p>
+    <ul>
+      <li>Moved legacy Adobe Flash applications to JavaScript-based implementations.</li>
+      <li>Built testing frameworks and user dashboards that supported quality and modernization work.</li>
+    </ul>
+    <ul class="chips"><li>Angular</li><li>TypeScript</li><li>Java</li><li>Selenium</li><li>MongoDB</li><li>REST</li></ul>
+  </div>
+</section>
 
-									Music From :
-									Music From : Free Hard Rock Production Music “Aggressor
+<section data-alt="0.41" data-year="2018">
+  <div class="card">
+    <p class="eyebrow">2018 – 2021 <span>The waterfall · Gurugram</span></p>
+    <h2>Nagarro</h2>
+    <p class="sub">Associate Staff Engineer</p>
+    <ul>
+      <li>Led and mentored a 4-member team modernizing an e-commerce storefront with React and React Native.</li>
+      <li>Designed a responsive frontend architecture on the Hybris commerce platform.</li>
+      <li>Added offline catalog browsing with client-side caching, so shoppers could keep browsing on weak connections.</li>
+      <li>Built casino game interfaces in PIXI.js with voice commands through Google Dialogflow.</li>
+    </ul>
+    <ul class="chips"><li>React</li><li>React Native</li><li>Node.js</li><li>Java</li><li>Socket.IO</li><li>PIXI.js</li></ul>
+  </div>
+</section>
 
-									Tools used : 
-									Android SDK 
-									AndEngine
-									PhysicsBOX2d by Nicolas Gramlich<br><a href="https://play.google.com/store/apps/details?id=com.pack.SuperRunnerBoyTrial">Game Link</a></p>
-							
-							
-							
-							</div>
-							</div>
-						  </div> 
-					
-					<!--end-->
-					</div>
-					<div id="menu3" class="tab-pane fade">
-					<!---->
-						</br>				
-						<div class="row">
-						  <div class="col-sm-6 col-md-3">
-							<div class="thumbnail">
-							  <img src="img/pg1.jpg" alt="...">
-							  <div class="caption">
-								<h3>Peeking Flower</h3>
-								<p>...</p>
-								</div>
-							</div>
-						  </div>
-						
-						  <div class="col-sm-6 col-md-3">
-							<div class="thumbnail">
-							  <img src="img/pg2.jpg" alt="...">
-							  <div class="caption">
-								<h3>To a new World</h3>
-								<p>...</p>
-								</div>
-							</div>
-						  </div>
-						
-						  <div class="col-sm-6 col-md-3">
-							<div class="thumbnail">
-							  <img src="img/pg3.jpg" alt="...">
-							  <div class="caption">
-								<h3>Shady Rocks</h3>
-								<p>...</p>
-	
-							  </div>
-							</div>
-						  </div>
-						  
-						  <div class="col-sm-6 col-md-3">
-							<div class="thumbnail">
-							  <img src="img/pg4.jpg" alt="...">
-							  <div class="caption">
-								<h3>Back in Time</h3>
-								<p>...</p>
-	
-							  </div>
-							</div>
-						  </div>
-						</div>
-						
-						<div class="row">
-						  <div class="col-sm-6 col-md-3">
-							<div class="thumbnail">
-							  <img src="img/pg5.jpg" alt="...">
-							  <div class="caption">
-								<h3>The Stream</h3>
-								<p>...</p>
-								</div>
-							</div>
-						  </div>
-						
-						  <div class="col-sm-6 col-md-3">
-							<div class="thumbnail">
-							  <img src="img/pg6.jpg" alt="...">
-							  <div class="caption">
-								<h3>Strange Town</h3>
-								<p>...</p>
-								</div>
-							</div>
-						  </div>
-						
-						  <div class="col-sm-6 col-md-3">
-							<div class="thumbnail">
-							  <img src="img/pg7.jpg" alt="...">
-							  <div class="caption">
-								<h3>The Unstoppable</h3>
-								<p>...</p>
-	
-							  </div>
-							</div>
-						  </div>
-						  
-						  <div class="col-sm-6 col-md-3">
-							<div class="thumbnail">
-							  <img src="img/pg8.jpg" alt="...">
-							  <div class="caption">
-								<h3>Majestic Crown</h3>
-								<p>...</p>
-	
-							  </div>
-							</div>
-						  </div>
-						</div>
-						
-						<div class="row">
-						  <div class="col-sm-6 col-md-3">
-							<div class="thumbnail">
-							  <img src="img/pg9.jpg" alt="...">
-							  <div class="caption">
-								<h3>Valley Calling</h3>
-								<p>...</p>
-								</div>
-							</div>
-						  </div>
-						
-						  <div class="col-sm-6 col-md-3">
-							<div class="thumbnail">
-							  <img src="img/pg10.jpg" alt="...">
-							  <div class="caption">
-								<h3>Lost in Time</h3>
-								<p>...</p>
-								</div>
-							</div>
-						  </div>
-						
-						  <div class="col-sm-6 col-md-3">
-							<div class="thumbnail">
-							  <img src="img/pg11.jpg" alt="...">
-							  <div class="caption">
-								<h3>Nature's Palace</h3>
-								<p>...</p>
-	
-							  </div>
-							</div>
-						  </div>
-						  
-						  <div class="col-sm-6 col-md-3">
-							<div class="thumbnail">
-							  <img src="img/pg12.jpg" alt="...">
-							  <div class="caption">
-								<h3>Silent Ocean</h3>
-								<p>...</p>
-	
-							  </div>
-							</div>
-						  </div>
-						</div>
-					
-					
-					
-					<!--end-->
-					</div>
-				  </div>
-				</div>
-					
-					
-                    </div>
-            </div>
-            <!-- /.row -->
-        </div>
-        <!-- /.container -->
-    </section>	
-		
-	 <!-- Client info >
-    <section id="clients" class="clients">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-12 text-center">
-                    <h2>Clients</h2>
-                    <p class="lead">this is where all text Software Engineer with 2+ years of experience. People mostly work in either Testing or Development domain. But I offer a package deal; Tester and a developer. I am in ways better than a Full Stack Developer because I can even test the code. I have not confined or hampered my learning. I have received Client Appreciation for Designing and Developing a Web Portal for a new Employee's Induction and Shadowing process. The idea and tool was perceived with critical acclaim and received an award for the same. I am currently working on MEAN stack as I have recently discovered my profound love for NodeJS and Mongo DBSoftware Engineer with 2+ years of experience. People mostly work in either Testing or Development domain. But I offer a package deal; Tester and a developer. I am in ways better than a Full Stack Developer because I can even test the code. I have not confined or hampered my learning. I have received Client Appreciation for Designing and Developing a Web Portal for a new Employee's Induction and Shadowing process. The idea and tool was perceived with critical acclaim and received an award for the same. I am currently working on MEAN stack as I have recently discovered my profound love for NodeJS and Mongo DBSoftware Engineer with 2+ years of experience. People mostly work in either Testing or Development domain. But I offer a package deal; Tester and a developer. I am in ways better than a Full Stack Developer because I can even test the code. I have not confined or hampered my learning. I have received Client Appreciation for Designing and Developing a Web Portal for a new Employee's Induction and Shadowing process. The idea and tool was perceived with critical acclaim and received an award for the same. I am currently working on MEAN stack as I have recently discovered my profound love for NodeJS and Mongo DBgoes</p>
-                </div>
-            </div>
-            <!-- /.row >
-        </div>
-        <!-- /.container >
-    </section-->
-	
-	 <!-- contact Me -->
-    <section id="contact" class="contact">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-12 text-center">
-                    <h2>Contact Me</h2>
-                    <p class="lead"></p>
-				</div>
-            </div>
-            <!-- /.row -->
-        </div>
-        <!-- /.container -->
-    </section>
-	
-	<!-- jQuery -->
-    <script src="js/jquery.js"></script>
+<section data-alt="0.60" data-year="2021">
+  <div class="card">
+    <p class="eyebrow">2021 – 2024 <span>Meadow and pine · Bengaluru</span></p>
+    <h2>Condé Nast</h2>
+    <p class="sub">Software Development Engineer 2, Technology Lab</p>
+    <ul>
+      <li>Led and mentored engineers through the modernization of them.com, building reusable components adopted across 17+ web applications.</li>
+      <li>Worked on the Pitchfork.com revamp: a reported 15% lift in organic clicks and about 2 more minutes of average time on site.</li>
+      <li>Designed GraphQL APIs and contributed to the Apollo Federation architecture.</li>
+      <li>Built interactive experiences for SELF.com's health conditions vertical, and helped migrate backend services and trim AWS cost.</li>
+    </ul>
+    <ul class="chips"><li>React</li><li>Redux</li><li>TypeScript</li><li>Node.js</li><li>GraphQL</li><li>Apollo Federation</li><li>AWS</li><li>Terraform</li></ul>
+  </div>
+</section>
 
-    <!-- Bootstrap Core JavaScript -->
-    <script src="js/bootstrap.min.js"></script>
-	
-	<!-- Bootstrap Core JavaScript -->
-    <script src="js/profile.js"></script>
-	
-	</body>
+<section data-alt="0.82" data-year="2024">
+  <div class="card">
+    <p class="eyebrow">2024 – Present <span>Snowline · Bengaluru</span></p>
+    <h2>Samsung R&amp;D Institute India</h2>
+    <p class="sub">Chief Engineer, Samsung Ads Demand-Side Platform</p>
+    <ul>
+      <li>Architected the split of the application into 10 microfrontend domains, each developed, tested and deployed independently.</li>
+      <li>Led backend decomposition into 8 modular packs, setting the service boundaries for a Ruby-to-Go microservices migration.</li>
+      <li>Cut deployment time from 75 minutes to 15 through CI/CD pipeline optimization.</li>
+      <li>Automated manual PR validation in CI and improved continuous delivery with Argo CD.</li>
+      <li>Drive architecture decisions on service boundaries, deployment strategy and the order of modernization.</li>
+    </ul>
+    <ul class="chips"><li>Go</li><li>Ruby</li><li>TypeScript</li><li>Microfrontends</li><li>Argo CD</li><li>AWS</li><li>AdTech</li></ul>
+  </div>
+</section>
 
+<section data-alt="0.92">
+  <div class="card">
+    <p class="eyebrow">High camp <span>What's in the pack</span></p>
+    <h2>Gear</h2>
+    <dl>
+      <dt>Languages</dt><dd>Go, Ruby, Java, TypeScript, JavaScript, SQL</dd>
+      <dt>Backend</dt><dd>Node.js, REST, GraphQL, Apollo Federation, Socket.IO</dd>
+      <dt>Frontend</dt><dd>React, Angular, Redux, microfrontends</dd>
+      <dt>Architecture</dt><dd>System design, microservices, monolith decomposition, distributed systems</dd>
+      <dt>Cloud</dt><dd>AWS (EKS, SQS, SNS, RDS, DynamoDB, CloudFront), Kubernetes, Terraform, Argo CD</dd>
+      <dt>Data</dt><dd>MySQL, PostgreSQL, Oracle, MongoDB, DynamoDB</dd>
+      <dt>Practice</dt><dd>Performance, caching, CDN, code review, mentoring</dd>
+    </dl>
+  </div>
+</section>
+
+<section class="summit" data-alt="1">
+  <div class="card">
+    <p class="eyebrow">Summit <span>5,000 m</span></p>
+    <h2>Let's talk</h2>
+    <p>The view is better with company. Write to me about platform engineering, architecture or modernization work.</p>
+    <ul class="contact">
+      <li><small>Email</small><a href="mailto:92.smaurya@gmail.com">92.smaurya@gmail.com</a></li>
+      <li><small>LinkedIn</small><a href="https://www.linkedin.com/in/sumit-maurya-92370292/">linkedin.com/in/sumit-maurya-92370292</a></li>
+      <li><small>GitHub</small><a href="https://github.com/Sammas21">github.com/Sammas21</a></li>
+    </ul>
+  </div>
+</section>
+
+</main>
+
+<script>
+(function(){
+'use strict';
+var cv=document.getElementById('scene'),ctx=cv.getContext('2d');
+var scroller=document.getElementById('scroller');
+var secs=[].slice.call(document.querySelectorAll('section[data-alt]'));
+var rail=document.getElementById('rail'),me=document.getElementById('me'),hudtxt=document.getElementById('hudtxt');
+var reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+var W=0,H=0,S=1,DPR=1,anchors=[],cur=0,target=0,time=0,dir=1,lastHud='';
+var WL=9000; /* world length of the trail */
+var stops=[];
+
+secs.forEach(function(s){
+  if(!s.dataset.year)return;
+  var a=+s.dataset.alt,d=document.createElement('i');
+  d.style.bottom=(a*100)+'%';d.innerHTML='<em>'+s.dataset.year+'</em>';
+  rail.appendChild(d);stops.push({a:a,year:s.dataset.year,el:d});
+});
+
+/* ---------- helpers ---------- */
+function hs(n){var s=Math.sin(n*127.1+311.7)*43758.5453;return s-Math.floor(s);}
+function cl(v,a,b){return v<a?a:v>b?b:v;}
+function sm(a,b,v){v=cl((v-a)/(b-a),0,1);return v*v*(3-2*v);}
+function lerp(a,b,t){return a+(b-a)*t;}
+function mix(c1,c2,t){return[lerp(c1[0],c2[0],t),lerp(c1[1],c2[1],t),lerp(c1[2],c2[2],t)];}
+function rgb(c,al){return 'rgba('+(c[0]|0)+','+(c[1]|0)+','+(c[2]|0)+','+(al==null?1:al)+')';}
+function keys(ks,t){for(var i=1;i<ks.length;i++){if(t<=ks[i][0]){var u=(t-ks[i-1][0])/(ks[i][0]-ks[i-1][0]);return mix(ks[i-1][1],ks[i][1],cl(u,0,1));}}return ks[ks.length-1][1];}
+
+var SKY_T=[[0,[20,52,44]],[.22,[40,96,96]],[.34,[86,146,186]],[.6,[58,132,204]],[.85,[36,78,146]],[1,[24,36,92]]];
+var SKY_B=[[0,[84,128,92]],[.22,[176,196,150]],[.34,[236,206,164]],[.6,[208,232,244]],[.85,[226,236,246]],[1,[246,196,160]]];
+
+/* biome weights at altitude fraction a: forest, rock, meadow, snow */
+function bw(a){var f=1-sm(.18,.26,a),r=sm(.18,.26,a)*(1-sm(.46,.54,a)),m=sm(.46,.54,a)*(1-sm(.70,.78,a)),s=sm(.70,.78,a);return[f,r,m,s];}
+var TOP=[[52,112,58],[150,146,104],[122,188,82],[255,255,255]];
+var BODY=[[38,62,42],[112,104,90],[78,122,62],[196,210,228]];
+function gcol(tab,a){var w=bw(a),c=[0,0,0];for(var i=0;i<4;i++){c[0]+=tab[i][0]*w[i];c[1]+=tab[i][1]*w[i];c[2]+=tab[i][2]*w[i];}return c;}
+
+function noise(x){return 46*Math.sin(x/310)+18*Math.sin(x/83+1.3)+70*Math.sin(x/900+.5);}
+function ground(x){
+  var xc=Math.min(x,WL),y=Math.max(xc,0)*.52+noise(xc);
+  var u=Math.max(0,(xc-.86*WL)/(.14*WL));y+=380*u*u;
+  if(x>WL)y-=(x-WL)*1.7;
+  return y;
+}
+
+/* ---------- layout / progress ---------- */
+function resize(){
+  DPR=Math.min(window.devicePixelRatio||1,2);
+  W=scroller.clientWidth||innerWidth;H=scroller.clientHeight||innerHeight;
+  document.documentElement.style.setProperty('--vh',(H/100)+'px');
+  cv.width=Math.round(W*DPR);cv.height=Math.round(H*DPR);
+  S=cl(H/820,.72,1.15);
+  measure();
+  if(reduce)draw();
+}
+function measure(){
+  var max=Math.max(1,scroller.scrollHeight-scroller.clientHeight),st=scroller.scrollTop,prev=-1;
+  var top0=scroller.getBoundingClientRect().top;
+  anchors=secs.map(function(s){
+    var c=s.querySelector('.card').getBoundingClientRect();
+    var y=cl(c.top-top0+st+c.height/2-H/2,0,max);
+    if(y<=prev)y=prev+1;prev=y;
+    return[y,+s.dataset.alt];
+  });
+  anchors[0][0]=0;anchors[anchors.length-1][0]=Math.max(max,anchors[anchors.length-2][0]+1);
+}
+function progress(){
+  var y=scroller.scrollTop;
+  for(var i=1;i<anchors.length;i++){
+    if(y<=anchors[i][0]){var u=(y-anchors[i-1][0])/(anchors[i][0]-anchors[i-1][0]);return lerp(anchors[i-1][1],anchors[i][1],cl(u,0,1));}
+  }
+  return 1;
+}
+function zone(t){return t<.2?'Dense forest':t<.36?'Shrubs and rock':t<.47?'Waterfall':t<.72?'Meadow and pine':t<.97?'Snowline':'Summit';}
+
+/* ---------- props ---------- */
+function circ(x,y,r){ctx.beginPath();ctx.arc(x,y,r,0,6.2832);ctx.fill();}
+function poly(p){ctx.beginPath();ctx.moveTo(p[0],p[1]);for(var i=2;i<p.length;i+=2)ctx.lineTo(p[i],p[i+1]);ctx.closePath();ctx.fill();}
+function tree(X,Y,k,r,fog,d){
+  ctx.fillStyle=rgb(mix([74,50,32],fog,d));ctx.fillRect(X-5*k,Y-84*k,10*k,90*k);
+  var g=[[31,94,52],[44,122,64],[24,74,46],[36,106,58],[28,84,50]];
+  var cs=[[0,-112,46],[-30,-90,34],[30,-92,36],[-8,-142,32],[18,-130,30]];
+  for(var i=0;i<5;i++){ctx.fillStyle=rgb(mix(g[(i+(r*5|0))%5],fog,d));circ(X+cs[i][0]*k,Y+cs[i][1]*k,cs[i][2]*k);}
+}
+function pine(X,Y,k,snow,fog,d){
+  ctx.fillStyle=rgb(mix([70,48,34],fog,d));ctx.fillRect(X-3*k,Y-18*k,6*k,24*k);
+  var ts=[[-14,46,27],[-42,40,21],[-66,36,15]];
+  for(var i=0;i<3;i++){
+    var y0=Y+ts[i][0]*k,h=ts[i][1]*k,w=ts[i][2]*k;
+    ctx.fillStyle=rgb(mix([28,84,62],fog,d));poly([X-w,y0,X,y0-h,X+w,y0]);
+    if(snow){ctx.fillStyle=rgb(mix([240,246,252],fog,d*.5));poly([X-w*.55,y0-h*.42,X,y0-h,X+w*.55,y0-h*.42,X+w*.2,y0-h*.5,X-w*.15,y0-h*.38]);}
+  }
+}
+function shrub(X,Y,k,c){ctx.fillStyle=rgb(c);circ(X-12*k,Y-7*k,11*k);circ(X,Y-12*k,14*k);circ(X+13*k,Y-6*k,10*k);}
+function rock(X,Y,k,r,snow,fog,d){
+  var a=-14-10*r,b=-24-8*r;
+  ctx.fillStyle=rgb(mix([122,126,134],fog,d));poly([X-22*k,Y+4*k,X-16*k,Y+a*k,X-2*k,Y+b*k,X+14*k,Y-18*k,X+24*k,Y+4*k]);
+  ctx.fillStyle=rgb(mix([156,160,168],fog,d));poly([X-16*k,Y+a*k,X-2*k,Y+b*k,X+2*k,Y-8*k,X-10*k,Y-2*k]);
+  if(snow){ctx.fillStyle='#fff';poly([X-17*k,Y+(a+1)*k,X-2*k,Y+(b-1)*k,X+15*k,Y-18*k,X+6*k,Y-13*k,X-3*k,Y-17*k,X-10*k,Y-10*k]);}
+}
+function grass(X,Y,k){ctx.strokeStyle='rgb(74,150,62)';ctx.lineWidth=2*k;ctx.beginPath();for(var i=-2;i<=2;i++){ctx.moveTo(X+i*3*k,Y+2*k);ctx.lineTo(X+i*6*k,Y-(14-Math.abs(i)*3)*k);}ctx.stroke();}
+function flowers(X,Y,k,r){var cs=['#ffd84d','#ff6fae','#ffffff'];ctx.strokeStyle='rgb(74,150,62)';ctx.lineWidth=1.5*k;for(var i=0;i<3;i++){var x=X+(i-1)*9*k,h=(10+hs(r*91+i)*8)*k;ctx.beginPath();ctx.moveTo(x,Y+2*k);ctx.lineTo(x,Y-h);ctx.stroke();ctx.fillStyle=cs[(i+(r*3|0))%3];circ(x,Y-h,3*k);}}
+function drift(X,Y,k){ctx.fillStyle='#fff';ctx.beginPath();ctx.ellipse(X,Y+3*k,32*k,10*k,0,0,6.2832);ctx.fill();}
+function signpost(X,Y,k,txt){
+  ctx.fillStyle='#5a3c22';ctx.fillRect(X-3*k,Y-46*k,6*k,50*k);
+  ctx.fillStyle='#e9d9b0';ctx.beginPath();ctx.moveTo(X-22*k,Y-56*k);ctx.lineTo(X+20*k,Y-56*k);ctx.lineTo(X+29*k,Y-46*k);ctx.lineTo(X+20*k,Y-36*k);ctx.lineTo(X-22*k,Y-36*k);ctx.closePath();ctx.fill();
+  ctx.fillStyle='#3a2a18';ctx.font='800 '+(15*k)+'px "Big Shoulders Display","Arial Narrow",sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(txt,X,Y-45.5*k);
+}
+
+function hiker(x,y,k,ph,d,moving){
+  ctx.save();ctx.translate(x,y);ctx.scale(d*k,k);ctx.lineCap='round';ctx.lineJoin='round';
+  var sw=moving?Math.sin(ph):0,bob=moving?Math.abs(Math.cos(ph))*2.2:0,hy=-28-bob;
+  function leg(s,col){var fx=s*13,fy=-Math.max(0,s)*5;ctx.strokeStyle=col;ctx.lineWidth=7;ctx.beginPath();ctx.moveTo(1,hy);ctx.lineTo(fx*.5+5,(hy+fy)/2);ctx.lineTo(fx,fy-3);ctx.stroke();ctx.fillStyle='#3b2416';ctx.beginPath();ctx.ellipse(fx+3,fy-2,7,4,0,0,6.2832);ctx.fill();}
+  leg(-sw,'#1c2836');
+  /* pack */
+  ctx.fillStyle='#e9c46a';ctx.beginPath();ctx.roundRect(-19,hy-36,15,7,3);ctx.fill();
+  ctx.fillStyle='#1f8a8a';ctx.beginPath();ctx.roundRect(-19,hy-30,14,25,4);ctx.fill();
+  leg(sw,'#27384a');
+  /* torso */
+  ctx.fillStyle='#ff7a2f';ctx.beginPath();ctx.roundRect(-7,hy-33,15,36,6);ctx.fill();
+  /* stick + arm */
+  var hx=19+sw*5,hy2=hy-8;
+  ctx.strokeStyle='#6b4a2c';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(hx,hy2-10);ctx.lineTo(hx+5+sw*6,-1);ctx.stroke();
+  ctx.strokeStyle='#e8651c';ctx.lineWidth=5.5;ctx.beginPath();ctx.moveTo(3,hy-26);ctx.lineTo(11,hy-13);ctx.lineTo(hx,hy2);ctx.stroke();
+  /* head */
+  ctx.fillStyle='#d99a6c';circ(3,hy-41,8);
+  ctx.fillStyle='#c8322e';ctx.beginPath();ctx.arc(3,hy-43,8.4,Math.PI,0);ctx.closePath();ctx.fill();circ(3,hy-52,2.6);
+  ctx.restore();
+}
+
+/* ---------- frame ---------- */
+function draw(){
+  var t=cur,cx=t*WL,cy=ground(cx);
+  var sx=W>=900?W*.28:W*.5,sy=H*lerp(.82,.69,t);
+  var skyT=keys(SKY_T,t),skyB=keys(SKY_B,t),wt=bw(t),fw=wt[0],sw=wt[3];
+  function X(wx){return sx+(wx-cx)*S;}
+  function Y(wy){return sy-(wy-cy)*S;}
+  ctx.setTransform(DPR,0,0,DPR,0,0);
+
+  /* sky */
+  var g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,rgb(skyT));g.addColorStop(1,rgb(skyB));ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+
+  /* stars near the summit */
+  var sa=sm(.86,1,t);
+  if(sa>0){ctx.fillStyle='#fff';for(var i=0;i<70;i++){ctx.globalAlpha=sa*(.35+.65*hs(i*3.1))*(1-hs(i*7.7)*.9*hs(i));circ(hs(i*1.7)*W,hs(i*2.9)*H*.6,.6+hs(i*5.3)*1.1);}ctx.globalAlpha=1;}
+
+  /* sun */
+  var sunX=W*.76,sunY=H*(.46-.2*t),sr=34*S;
+  var sg=ctx.createRadialGradient(sunX,sunY,sr*.4,sunX,sunY,sr*4.5);sg.addColorStop(0,'rgba(255,244,214,'+(.55*(1-fw*.5))+')');sg.addColorStop(1,'rgba(255,244,214,0)');
+  ctx.fillStyle=sg;ctx.fillRect(sunX-sr*5,sunY-sr*5,sr*10,sr*10);
+  ctx.fillStyle='rgba(255,248,228,'+(.95-fw*.5)+')';circ(sunX,sunY,sr);
+
+  /* far ridges */
+  var layers=[[.05,.60,.22,110,520,mix(skyB,[52,84,120],.38)],[.13,.76,.42,80,330,mix(skyB,[34,62,86],.6)]];
+  for(var j=0;j<2;j++){
+    var L=layers[j],off=cx*S*L[0];
+    ctx.fillStyle=rgb(L[5]);ctx.beginPath();ctx.moveTo(-10,H+10);
+    for(var x=-10;x<=W+12;x+=12){var wx=(x+off)/S;var ry=L[3]*(Math.sin(wx/L[4]+j*2.1)+.5*Math.sin(wx/(L[4]*.37)+j)+.22*Math.sin(wx/(L[4]*.11)));ctx.lineTo(x,H*L[1]+t*H*L[2]-ry*S);}
+    ctx.lineTo(W+12,H+10);ctx.closePath();ctx.fill();
+  }
+
+  /* clouds */
+  for(i=0;i<9;i++){
+    var t0=.26+i*.085,cyy=H*.34+(t-t0)*H*2.4;if(cyy<-80||cyy>H+80)continue;
+    var cxx=((hs(i*4.4)*(W+400)+time*(5+hs(i)*7)-cx*S*.3)%(W+400)+W+400)%(W+400)-200,k=S*(.8+hs(i*9.1)*.8);
+    ctx.fillStyle='rgba(255,255,255,.78)';ctx.beginPath();ctx.ellipse(cxx,cyy,70*k,17*k,0,0,6.2832);ctx.ellipse(cxx-26*k,cyy-12*k,30*k,18*k,0,0,6.2832);ctx.ellipse(cxx+18*k,cyy-16*k,36*k,22*k,0,0,6.2832);ctx.fill();
+  }
+
+  /* visible world range */
+  var x0=cx+(-140-sx)/S,x1=cx+(W+140-sx)/S,SL=38,i0=Math.floor(x0/SL)-1,i1=Math.ceil(x1/SL)+1;
+  var wfx=.41*WL,wa=.36*WL,wb=.46*WL;
+
+  function decor(row){
+    for(var i=i0;i<=i1;i++){
+      var n=i+row*5000,r1=hs(n),r2=hs(n*1.37+9),r3=hs(n*2.11+3),r4=hs(n*3.7+1);
+      var wx=i*SL+r1*24;if(wx>WL-46)continue;
+      var a=wx/WL,w=bw(a),b=r2<w[0]?0:r2<w[0]+w[1]?1:r2<w[0]+w[1]+w[2]?2:3;
+      var px=X(wx),gy=ground(wx),k=S*(.8+r4*.5),nearFall=Math.abs(wx-wfx)<70;
+      if(row===0){ /* back row: taller, hazed, rooted below the ridge line */
+        var py=Y(gy-8),d=.34;
+        if(b===0){if(r3<.9)tree(px,py,k*1.55,r4,skyB,d);}
+        else if(b===1){if(r3<.14&&!(wx>wa&&wx<wb))tree(px,py,k*.75,r4,skyB,d);else if(r3<.4)rock(px,py,k*1.7,r4,false,skyB,d);}
+        else if(b===2){if(r3<.42)pine(px,py,k*1.7,false,skyB,d);}
+        else{if(r3<.2&&a<.86)pine(px,py,k*1.5,true,skyB,d);else if(r3<.4)rock(px,py,k*1.9,r4,true,skyB,d);}
+      }else if(row===1){
+        py=Y(gy)+2*S;
+        if(Math.abs(wx-cx)<26&&b===0)continue;
+        if(b===0){if(r3<.62&&!nearFall)tree(px,py,k*1.05,r4,skyB,0);else shrub(px,py,k,[30,96,56]);}
+        else if(b===1){if(nearFall)continue;if(r3<.34)rock(px,py,k,r4,false,skyB,0);else if(r3<.72)shrub(px,py,k*.9,[126,142,74]);else if(r3<.8)tree(px,py,k*.5,r4,skyB,0);}
+        else if(b===2){if(r3<.26)pine(px,py,k*1.15,false,skyB,0);else if(r3<.56)grass(px,py,k);else if(r3<.8)flowers(px,py,k,r4);else if(r3<.87)rock(px,py,k*.8,r4,false,skyB,0);}
+        else{if(r3<.16&&a<.86)pine(px,py,k,true,skyB,0);else if(r3<.42)rock(px,py,k,r4,true,skyB,0);else if(r3<.6)drift(px,py,k);}
+      }else{ /* front row: small things only, rooted below the ridge line */
+        if(r3>.3)continue;py=Y(gy-16);
+        if(b===0)shrub(px,py,k*1.3,[22,74,44]);
+        else if(b===1){if(!nearFall)rock(px,py,k*1.1,r4,false,skyB,0);}
+        else if(b===2)grass(px,py,k*1.5);
+        else drift(px,py,k*1.3);
+      }
+    }
+  }
+
+  decor(0);
+
+  /* rock wall and waterfall behind the trail */
+  if(x1>wa&&x0<wb){
+    function wallTop(wx){var u=(wx-wa)/(wb-wa);return ground(wx)+560*Math.pow(Math.sin(Math.PI*cl(u,0,1)),.55)+26*Math.sin(wx/37)+12*Math.sin(wx/13);}
+    var wg=ctx.createLinearGradient(0,Y(wallTop(wfx)),0,Y(ground(wa)));wg.addColorStop(0,'#7c838c');wg.addColorStop(1,'#4c535d');ctx.fillStyle=wg;
+    ctx.beginPath();ctx.moveTo(X(wa),Y(ground(wa)-40));for(var wx2=wa;wx2<=wb;wx2+=10)ctx.lineTo(X(wx2),Y(wallTop(wx2)));ctx.lineTo(X(wb),Y(ground(wb)-40));ctx.closePath();ctx.fill();
+    ctx.strokeStyle='rgba(30,36,44,.28)';ctx.lineWidth=2*S;
+    for(i=0;i<7;i++){var lx=wa+(wb-wa)*(.12+i*.125),lt=wallTop(lx);ctx.beginPath();ctx.moveTo(X(lx),Y(lt-30));ctx.lineTo(X(lx+18),Y(lt-150-hs(i)*160));ctx.stroke();}
+    var fx=X(wfx),ft=Y(wallTop(wfx)-10),fb=Y(ground(wfx))+4,fwid=50*S;
+    var fg=ctx.createLinearGradient(0,ft,0,fb);fg.addColorStop(0,'rgba(255,255,255,.96)');fg.addColorStop(1,'rgba(176,222,244,.92)');
+    ctx.fillStyle=fg;ctx.beginPath();ctx.roundRect(fx-fwid/2,ft,fwid,fb-ft,[fwid/2,fwid/2,0,0]);ctx.fill();
+    ctx.strokeStyle='rgba(255,255,255,.85)';ctx.lineWidth=2.2*S;ctx.setLineDash([26*S,34*S]);
+    for(i=0;i<6;i++){ctx.lineDashOffset=-(time*(240+i*30)+i*37)*S;var lx2=fx-fwid/2+fwid*(i+.5)/6;ctx.beginPath();ctx.moveTo(lx2,ft+8*S);ctx.lineTo(lx2,fb);ctx.stroke();}
+    ctx.setLineDash([]);
+    for(i=0;i<7;i++){ctx.fillStyle='rgba(255,255,255,'+(.2+.12*Math.sin(time*1.6+i))+')';circ(fx+(i-3)*17*S,fb-(6+8*Math.sin(time*1.1+i*1.7))*S,(20+6*Math.sin(time+i))*S);}
+  }
+
+  /* terrain */
+  var path=new Path2D(),top=new Path2D(),first=true;
+  path.moveTo(-20,H+20);
+  for(x=-20;x<=W+28;x+=8){var wxx=cx+(x-sx)/S,yy=Y(ground(wxx));path.lineTo(x,yy);if(first){top.moveTo(x,yy);first=false;}else top.lineTo(x,yy);}
+  path.lineTo(W+28,H+20);path.closePath();
+  var bg=ctx.createLinearGradient(0,0,W,0),tg=ctx.createLinearGradient(0,0,W,0);
+  for(i=0;i<=10;i++){var aa=(cx+(W*i/10-sx)/S)/WL;bg.addColorStop(i/10,rgb(gcol(BODY,aa)));tg.addColorStop(i/10,rgb(gcol(TOP,aa)));}
+  ctx.fillStyle=bg;ctx.fill(path);
+  var dg=ctx.createLinearGradient(0,sy-H*.2,0,H);dg.addColorStop(0,'rgba(8,14,22,0)');dg.addColorStop(1,'rgba(8,14,22,.5)');ctx.fillStyle=dg;ctx.fill(path);
+  ctx.strokeStyle=tg;ctx.lineWidth=12*S;ctx.lineJoin='round';ctx.lineCap='round';ctx.stroke(top);
+
+  /* stream running down from the waterfall */
+  if(x1>wfx-320&&x0<wfx+40){ctx.strokeStyle='rgba(150,212,240,.95)';ctx.lineWidth=8*S;ctx.beginPath();for(var q=wfx-300;q<=wfx+30;q+=10){var qx=X(q),qy=Y(ground(q))+1;if(q===wfx-300)ctx.moveTo(qx,qy);else ctx.lineTo(qx,qy);}ctx.stroke();
+    ctx.strokeStyle='rgba(255,255,255,.7)';ctx.lineWidth=2*S;ctx.setLineDash([10*S,22*S]);ctx.lineDashOffset=time*90*S;ctx.stroke();ctx.setLineDash([]);}
+
+  decor(1);
+
+  /* year signposts */
+  for(i=0;i<stops.length;i++){var px2=stops[i].a*WL+44;if(px2>x0&&px2<x1)signpost(X(px2),Y(ground(px2)),S*1.05,stops[i].year);}
+
+  /* summit flag and prayer flags */
+  if(x1>WL-260){
+    var fxs=X(WL+10),fys=Y(ground(WL+10)),pk=S;
+    ctx.strokeStyle='#e8e2d2';ctx.lineWidth=3*pk;ctx.beginPath();ctx.moveTo(fxs,fys+4*pk);ctx.lineTo(fxs,fys-92*pk);ctx.stroke();
+    var wv=Math.sin(time*3)*5*pk;ctx.fillStyle='#ff8438';poly([fxs,fys-92*pk,fxs+40*pk,fys-80*pk+wv,fxs,fys-66*pk]);
+    var ax=X(WL-190),ay=Y(ground(WL-190))-14*pk,bx=fxs,by=fys-60*pk,pc=['#3a7bd5','#ffffff','#e23d3d','#35a35a','#f4c430'];
+    ctx.strokeStyle='rgba(60,50,40,.7)';ctx.lineWidth=1.2*pk;ctx.beginPath();
+    for(i=0;i<=14;i++){var u2=i/14,lx3=lerp(ax,bx,u2),ly3=lerp(ay,by,u2)+Math.sin(u2*Math.PI)*22*pk;if(i===0)ctx.moveTo(lx3,ly3);else ctx.lineTo(lx3,ly3);}ctx.stroke();
+    for(i=1;i<14;i++){u2=i/14;lx3=lerp(ax,bx,u2);ly3=lerp(ay,by,u2)+Math.sin(u2*Math.PI)*22*pk;ctx.fillStyle=pc[i%5];ctx.fillRect(lx3-5*pk,ly3,10*pk,(11+Math.sin(time*4+i)*1.5)*pk);}
+  }
+
+  /* the hiker */
+  var moving=Math.abs(target-cur)*WL>.6;
+  ctx.fillStyle='rgba(0,0,0,.22)';ctx.beginPath();ctx.ellipse(sx,sy+2*S,20*S,5*S,0,0,6.2832);ctx.fill();
+  hiker(sx,sy+1*S,S*1.05,cx/13,dir,moving);
+
+  decor(2);
+
+  /* forest canopy and near trunks */
+  if(fw>0.01){
+    ctx.globalAlpha=fw;
+    var cg=ctx.createLinearGradient(0,0,0,H*.5);cg.addColorStop(0,'rgba(8,30,22,.92)');cg.addColorStop(1,'rgba(8,30,22,0)');ctx.fillStyle=cg;ctx.fillRect(0,0,W,H*.5);
+    var P=W+600;
+    for(i=0;i<2;i++){var tx=(((i?.62:.03)*P-cx*S*1.6)%P+P)%P-300,tw=(44+i*18)*S;ctx.fillStyle='rgb(9,28,20)';ctx.fillRect(tx,0,tw,H);ctx.fillStyle='rgba(255,255,255,.04)';ctx.fillRect(tx+tw*.62,0,tw*.14,H);}
+    var P2=W+240,nb=Math.ceil(P2/78);
+    for(i=0;i<nb;i++){var bx2=((i*78-cx*S*1.3)%P2+P2)%P2-120;ctx.fillStyle=i%2?'rgb(12,40,27)':'rgb(9,30,21)';circ(bx2,(-14+hs(i*3.3)*44)*S,(58+hs(i*1.9)*34)*S);}
+    for(i=0;i<26;i++){ctx.globalAlpha=fw*(.35+.45*Math.sin(time*2+i*1.3));ctx.fillStyle='#ffe9a0';circ(hs(i*2.3)*W+Math.sin(time*.3+i)*30,H*(.25+hs(i*4.1)*.6)+Math.cos(time*.4+i*2)*20,1.7*S);}
+    ctx.globalAlpha=1;
+  }
+
+  /* snowfall */
+  if(sw>0.01){ctx.fillStyle='#fff';for(i=0;i<80;i++){var sp=40+hs(i*1.3)*50;ctx.globalAlpha=sw*(.5+hs(i*6.1)*.5);circ(((hs(i*2.7)*W-time*18+Math.sin(time+i)*12)%W+W)%W,(hs(i*3.9)*H+time*sp)%H,(1.2+hs(i*8.3)*2)*S);}ctx.globalAlpha=1;}
+
+  /* HUD */
+  var txt=Math.round(1800+t*3200).toLocaleString('en-US')+' m · '+zone(t);
+  if(txt!==lastHud){hudtxt.textContent=txt;lastHud=txt;}
+  me.style.bottom=(t*100)+'%';
+  for(i=0;i<stops.length;i++)stops[i].el.className=t>=stops[i].a-.005?'done':'';
+}
+
+function frame(ts){
+  time=ts/1000;target=progress();
+  var d=target-cur;
+  if(Math.abs(d)*WL>.6)dir=d>0?1:-1;
+  cur=Math.abs(d)<1e-5?target:cur+d*.14;
+  draw();
+  requestAnimationFrame(frame);
+}
+
+window.addEventListener('resize',resize);
+if(window.ResizeObserver)new ResizeObserver(function(){measure();}).observe(scroller.firstElementChild);
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(measure);
+resize();
+if(reduce){scroller.addEventListener('scroll',function(){cur=target=progress();draw();},{passive:true});draw();}
+else requestAnimationFrame(frame);
+})();
+</script>
+</body>
 </html>
